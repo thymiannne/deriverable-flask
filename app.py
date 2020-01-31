@@ -14,6 +14,9 @@ users = {
 
 @app.route('/')
 def hello():
+    """
+    $curl localhost -> HELLO
+    """
     return "HELLO\n"
 
 
@@ -27,11 +30,20 @@ def get_pw(id):
 @app.route('/basic/')
 @auth.login_required
 def secret():
+    """
+    $curl localhost/basic/ -> UnAuthorized Request
+    $curl -u user:letmein localhost/basic/ -> Authorized!
+    """
     return "Authorized!\n"
 
 
 @app.route('/eval')
 def calc_request():
+    """
+    $curl 'localhost/eval?1+4' -> 5
+    $curl 'localhost/eval?5/2' -> 2.5
+    $curl 'localhost/eval?xxx' -> ERROR
+    """
     try:
         ans = request.query_string
         return str(eval(ans.decode())) + '\n'
@@ -41,6 +53,22 @@ def calc_request():
 
 @app.route('/database')
 def crud():
+    """
+    $curl 'localhost/database?function=add&name=foo&amount=7'
+    -> INSERTED
+    $curl 'localhost/database?function=add&name=bar&amount=5.6'
+    -> ERROR
+    $curl 'localhost/database?function=check&name=foo'
+    -> foo: 7
+    $curl 'localhost/database?function=sell&name=foo&amount=2$price=9'
+    -> UPDATED
+    $curl 'localhost/database?function=sale'
+    -> sales: 63
+    $curl 'localhost/database?function=deleteall'
+    -> DELETED
+    $curl 'localhost/database?function=fewjio'
+    -> ERROR
+    """
     try:
         function = request.args.get('function', '')
         name = request.args.get('name', '')
